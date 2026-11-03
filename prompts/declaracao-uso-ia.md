@@ -54,10 +54,10 @@ app para conferir widgets e gráficos. A data exata, a resposta completa do
 Copilot e as transcrições das sessões anteriores não estão disponíveis neste
 histórico; os detalhes devem ser revisados pelo estudante antes da assinatura.
 
-O uso da Skill oficial do Streamlit (`streamlit skills`) não pôde ser
-confirmado. Verifique o histórico local e registre esse uso na declaração PDF
-se aplicável.
+O estudante confirmou o uso da Skill oficial do Streamlit (`streamlit skills`)
+como apoio no desenvolvimento do app. A versão da Skill não foi identificada.
+Também informou que concluiu o deploy do aplicativo em 03/11/2026.
 
 O formulário oficial preenchido para revisão está em
-[`DECLARACAO_IA.pdf`](DECLARACAO_IA.pdf). A assinatura ainda precisa ser feita
-pelo estudante.
+[`entregas/DECLARACAO_IA.pdf`](../entregas/DECLARACAO_IA.pdf). A assinatura
+ainda precisa ser feita pelo estudante, à mão ou pelo gov.br.
