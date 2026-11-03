@@ -1,15 +1,19 @@
 # Entregas
 
-Esta pasta reúne os materiais de entrega das Aulas 21, 22 e 23. Os rascunhos
-devem ser feitos antes da implementação correspondente e salvos aqui em `.jpg`
-ou `.png`. Os arquivos de uso de IA ficam em [`prompts/`](../prompts/).
+Esta pasta reúne os materiais de entrega das Aulas 21, 22 e 23. Os rascunhos ficam aqui em `.jpg` ou `.png`. Os arquivos de uso de IA ficam
+em [`prompts/`](../prompts/).
+
+> **Nota sobre os wireframes desta entrega:** os arquivos atuais foram
+> reconstruídos durante a revisão, depois da primeira implementação do app.
+> Eles documentam o layout, mas não comprovam que o planejamento ocorreu
+> antes da implementação original.
 
 ## Entregas por aula
 
 ### Aula 21 — Dashboard 1
 
-- [ ] `rascunho-dashboard1.jpg` ou `rascunho-dashboard1.png` — rascunho da
-  página com sidebar, filtros, área de correlação e área de distribuição.
+- [x] [`rascunho-dashboard1.png`](rascunho-dashboard1.png) — wireframe da
+  página com sidebar, filtros, área de correlação e histogramas.
 
 Além do material desta pasta, a entrega da aula inclui o `app.py` com pelo
 menos um seletor de variáveis e um slider de intervalo funcionando, o app
@@ -18,8 +22,8 @@ executando localmente e a declaração de uso de IA atualizada em
 
 ### Aula 22 — Dashboard 2
 
-- [ ] `rascunho-dashboard2.jpg` ou `rascunho-dashboard2.png` — rascunho feito
-  depois de definir as variáveis, métricas e widgets do Dashboard 2.
+- [x] [`rascunho-dashboard2.png`](rascunho-dashboard2.png) — wireframe com
+  público-alvo, filtros, métricas e visuais do Dashboard 2.
 - [x] [`justificativa-metricas.md`](justificativa-metricas.md) — justificativa
   preenchida para as métricas/KPIs.
 
@@ -35,10 +39,12 @@ Confira também os itens de entrega que não ficam nesta pasta:
 - [ ] Dashboard 1 e Dashboard 2 implementados no app, em abas, com widgets,
   métricas e gráficos funcionando.
 - [ ] App publicado no Streamlit Community Cloud e testado pelo link público.
-- [ ] Link do app (`.streamlit.app`) incluído no [`README.md`](../README.md).
-- [ ] Repositório próprio no GitHub com as alterações commitadas e enviadas.
-- [ ] `app.py`, notebooks, `requirements.txt` e `data/clean/dataset.csv`
-  incluídos no repositório; nenhum dado sensível ou segredo publicado.
+- [x] Link do app (`.streamlit.app`) incluído no [`README.md`](../README.md).
+- [ ] Repositório próprio no GitHub com as alterações desta revisão commitadas
+  e enviadas.
+- [x] `app.py`, notebooks, `requirements.txt` e `data/clean/dataset.csv`
+  incluídos no repositório. O CSV atual e as saídas dos notebooks não contêm
+  nomes, códigos individuais ou datas completas de nascimento.
 
 O passo a passo e os critérios de teste do deploy estão no
 [`ROTEIRO.md`](../ROTEIRO.md).

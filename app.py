@@ -38,8 +38,7 @@ st.markdown(
         color: #444444;
         font-weight: 600;
     }
-    div[data-baseweb="select"] > div,
-    div[data-testid="stDateInput"] input {
+    div[data-baseweb="select"] > div {
         border-color: #ff6b0a;
         border-radius: 10px;
         background-color: #fffaf0;
@@ -51,9 +50,21 @@ st.markdown(
 
 df = load_data()
 variaveis_quantitativas = ["height", "weight", "age"]
-colunas_ausentes = [coluna for coluna in variaveis_quantitativas if coluna not in df.columns]
+rotulos_variaveis = {
+    "height": "Altura (cm)",
+    "weight": "Peso (kg)",
+    "age": "Idade (anos)",
+}
+colunas_necessarias = [
+    *variaveis_quantitativas,
+    "gender",
+    "disciplines",
+    "country",
+    "faixa_etaria",
+]
+colunas_ausentes = [coluna for coluna in colunas_necessarias if coluna not in df.columns]
 if colunas_ausentes:
-    st.error(f"Colunas quantitativas ausentes no dataset: {', '.join(colunas_ausentes)}.")
+    st.error(f"Colunas necessárias ausentes no dataset: {', '.join(colunas_ausentes)}.")
     st.stop()
 
 for coluna in variaveis_quantitativas:
@@ -77,19 +88,37 @@ else:
     st.error("A coluna `disciplines` é necessária para os KPIs de modalidades.")
     st.stop()
 
-if "birth_date" in df.columns:
-    df["birth_date"] = pd.to_datetime(df["birth_date"], errors="coerce")
-else:
-    st.error("A coluna `birth_date` é necessária para filtrar o período.")
-    st.stop()
-
 df = df.dropna(subset=variaveis_quantitativas, how="all")
-if df.empty or df["birth_date"].notna().sum() == 0:
-    st.error("Não há dados quantitativos e datas de nascimento válidas para exibir.")
+idades_validas = df["age"].dropna()
+if df.empty or idades_validas.empty:
+    st.error("Não há dados quantitativos e idades válidas para exibir.")
     st.stop()
 
-data_minima = df["birth_date"].min().date()
-data_maxima = df["birth_date"].max().date()
+idade_minima = int(idades_validas.min())
+idade_maxima = int(idades_validas.max())
+
+with st.sidebar:
+    st.header("Filtros · Dashboard 1")
+    st.caption("Os filtros abaixo afetam o laboratório de análise exploratória.")
+    variaveis_selecionadas = st.multiselect(
+        "Variáveis quantitativas",
+        options=variaveis_quantitativas,
+        default=variaveis_quantitativas,
+        format_func=lambda variavel: rotulos_variaveis[variavel],
+        help="Escolha as variáveis exibidas no mapa de calor e nos histogramas.",
+        key="variaveis_dashboard1",
+    )
+    faixa_idade = st.slider(
+        "Intervalo de idade (anos)",
+        min_value=idade_minima,
+        max_value=idade_maxima,
+        value=(idade_minima, idade_maxima),
+        step=1,
+        help="Atletas fora deste intervalo são excluídos da análise.",
+        key="faixa_idade_dashboard1",
+    )
+
+df_filtrado = df.loc[df["age"].between(faixa_idade[0], faixa_idade[1])]
 
 with st.container(border=True):
     st.markdown(
@@ -105,178 +134,152 @@ with st.container(border=True):
 aba_dashboard1, aba_dashboard2 = st.tabs(["Dashboard 1 · Análise exploratória", "Dashboard 2 · KPIs"])
 
 with aba_dashboard1:
-    col_filtros, col_correlacao, col_distribuicao = st.columns(
-        [0.85, 1.7, 1.7],
-        gap="small",
-    )
-
-    with col_filtros:
-        with st.container(border=True):
-            st.subheader("Filtros")
-            variaveis_selecionadas = st.multiselect(
-                "Variáveis",
-                options=variaveis_quantitativas,
-                default=variaveis_quantitativas,
-                help="Selecione as variáveis quantitativas para a matriz de correlação.",
+    with st.container(border=True):
+        st.subheader("Relação entre variáveis")
+        st.caption("Matriz de correlação")
+        if len(variaveis_selecionadas) < 2:
+            st.info("Selecione pelo menos duas variáveis para visualizar a correlação.")
+        elif df_filtrado[variaveis_selecionadas].dropna(how="all").empty:
+            st.info("Não há dados disponíveis para as variáveis e a faixa etária selecionadas.")
+        else:
+            correlacoes = df_filtrado[variaveis_selecionadas].corr()
+            fig_correlacao = go.Figure(
+                data=go.Heatmap(
+                    z=correlacoes.values,
+                    x=[rotulos_variaveis[coluna] for coluna in correlacoes.columns],
+                    y=[rotulos_variaveis[coluna] for coluna in correlacoes.index],
+                    zmin=-1,
+                    zmax=1,
+                    zmid=0,
+                    colorscale=[
+                        [0, "#a9a9a9"],
+                        [0.5, "#fff3e5"],
+                        [1, "#f97316"],
+                    ],
+                    text=[[f"{valor:.2f}" for valor in linha] for linha in correlacoes.values],
+                    texttemplate="%{text}",
+                    textfont={"size": 13, "color": "#444444"},
+                    colorbar={"title": "Correlação"},
+                    hovertemplate="%{y} × %{x}<br>Correlação: %{z:.2f}<extra></extra>",
+                )
             )
-            periodo = st.date_input(
-                "Período",
-                value=(data_minima, data_maxima),
-                min_value=data_minima,
-                max_value=data_maxima,
-                format="DD/MM/YYYY",
-                help="Filtra os atletas pela data de nascimento.",
-                key="periodo_dashboard1",
+            fig_correlacao.update_layout(
+                height=450,
+                margin={"l": 8, "r": 8, "t": 12, "b": 8},
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                xaxis={"side": "top", "showgrid": False},
+                yaxis={"autorange": "reversed", "showgrid": False},
+                font={"color": "#444444"},
             )
-    if isinstance(periodo, (tuple, list)):
-        data_inicio, data_fim = periodo[0], periodo[-1]
-    else:
-        data_inicio = data_fim = periodo
+            st.plotly_chart(fig_correlacao, width="stretch")
 
-    mascara_periodo = df["birth_date"].dt.date.between(data_inicio, data_fim)
-    df_filtrado = df.loc[mascara_periodo]
+    with st.container(border=True):
+        st.subheader("Altura e peso")
+        st.caption("Relação entre medidas corporais por gênero")
+        fig_perfil = px.scatter(
+            df_filtrado,
+            x="height",
+            y="weight",
+            color="gender_label",
+            color_discrete_map={"Feminino": "#f97316", "Masculino": "#64748b"},
+            opacity=0.62,
+            hover_data=["age", "country"],
+            labels={
+                "height": "Altura (cm)",
+                "weight": "Peso (kg)",
+                "gender_label": "Gênero",
+                "age": "Idade",
+                "country": "País",
+            },
+        )
+        fig_perfil.update_layout(
+            height=430,
+            margin={"l": 8, "r": 8, "t": 12, "b": 8},
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font={"color": "#444444"},
+            legend_title_text="Gênero",
+        )
+        fig_perfil.update_xaxes(showgrid=False)
+        fig_perfil.update_yaxes(gridcolor="#e8dfd3")
+        st.plotly_chart(fig_perfil, width="stretch")
 
-    with col_correlacao:
-        with st.container(border=True):
-            st.subheader("Relação entre variáveis")
-            st.caption("Matriz de correlação")
-            if len(variaveis_selecionadas) < 2:
-                st.info("Selecione pelo menos duas variáveis para visualizar a correlação.")
-            elif df_filtrado[variaveis_selecionadas].dropna(how="all").empty:
-                st.info("Não há dados disponíveis para as variáveis e o período selecionados.")
-            else:
-                correlacoes = df_filtrado[variaveis_selecionadas].corr()
-                fig_correlacao = go.Figure(
-                    data=go.Heatmap(
-                        z=correlacoes.values,
-                        x=correlacoes.columns,
-                        y=correlacoes.index,
-                        zmin=-1,
-                        zmax=1,
-                        zmid=0,
-                        colorscale=[
-                            [0, "#a9a9a9"],
-                            [0.5, "#fff3e5"],
-                            [1, "#f97316"],
-                        ],
-                        text=[[f"{valor:.2f}" for valor in linha] for linha in correlacoes.values],
-                        texttemplate="%{text}",
-                        textfont={"size": 13, "color": "#444444"},
-                        colorbar={"title": "Correlação"},
-                        hovertemplate="%{y} × %{x}<br>Correlação: %{z:.2f}<extra></extra>",
+    with st.container(border=True):
+        st.subheader("Distribuição das variáveis quantitativas")
+        st.caption("Um histograma para cada variável selecionada")
+        if not variaveis_selecionadas:
+            st.info("Selecione ao menos uma variável para visualizar seu histograma.")
+        else:
+            colunas_histogramas = st.columns(len(variaveis_selecionadas), gap="small")
+            for coluna, variavel in zip(colunas_histogramas, variaveis_selecionadas):
+                with coluna:
+                    fig_histograma = px.histogram(
+                        df_filtrado,
+                        x=variavel,
+                        color="gender_label",
+                        nbins=25,
+                        barmode="overlay",
+                        opacity=0.72,
+                        color_discrete_map={"Feminino": "#f97316", "Masculino": "#64748b"},
+                        labels={
+                            variavel: rotulos_variaveis[variavel],
+                            "count": "Atletas",
+                            "gender_label": "Gênero",
+                        },
                     )
-                )
-                fig_correlacao.update_layout(
-                    height=450,
-                    margin={"l": 8, "r": 8, "t": 12, "b": 8},
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    xaxis={"side": "top", "showgrid": False},
-                    yaxis={"autorange": "reversed", "showgrid": False},
-                    font={"color": "#444444"},
-                )
-                st.plotly_chart(fig_correlacao, width="stretch")
+                    fig_histograma.update_layout(
+                        title=rotulos_variaveis[variavel],
+                        height=350,
+                        margin={"l": 8, "r": 8, "t": 45, "b": 8},
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        font={"color": "#444444"},
+                        legend_title_text="Gênero",
+                    )
+                    fig_histograma.update_xaxes(showgrid=False)
+                    fig_histograma.update_yaxes(
+                        title_text="Número de atletas",
+                        gridcolor="#e8dfd3",
+                    )
+                    st.plotly_chart(fig_histograma, width="stretch")
 
-    with col_distribuicao:
-        with st.container(border=True):
-            st.subheader("Altura e peso")
-            st.caption("Relação entre medidas corporais por gênero")
-            fig_perfil = px.scatter(
-                df_filtrado,
-                x="height",
-                y="weight",
-                color="gender_label",
-                color_discrete_map={"Feminino": "#f97316", "Masculino": "#64748b"},
-                opacity=0.62,
-                hover_data=["age", "country"],
-                labels={
-                    "height": "Altura (cm)",
-                    "weight": "Peso (kg)",
-                    "gender_label": "Gênero",
-                    "age": "Idade",
-                    "country": "País",
-                },
-            )
-            fig_perfil.update_layout(
-                height=430,
-                margin={"l": 8, "r": 8, "t": 12, "b": 8},
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#444444"},
-                legend_title_text="Gênero",
-            )
-            fig_perfil.update_xaxes(showgrid=False)
-            fig_perfil.update_yaxes(gridcolor="#e8dfd3")
-            st.plotly_chart(fig_perfil, width="stretch")
-
-    col_idades, col_modalidades = st.columns(2, gap="small")
-    with col_idades:
-        with st.container(border=True):
-            st.subheader("Perfil etário")
-            st.caption("Distribuição das idades, separada por gênero")
-            fig_idades = px.histogram(
-                df_filtrado,
-                x="age",
-                color="gender_label",
-                nbins=30,
-                barmode="overlay",
-                opacity=0.72,
-                color_discrete_map={"Feminino": "#f97316", "Masculino": "#64748b"},
-                labels={
-                    "age": "Idade (anos)",
-                    "count": "Atletas",
-                    "gender_label": "Gênero",
-                },
-            )
-            fig_idades.update_layout(
-                height=380,
-                margin={"l": 8, "r": 8, "t": 12, "b": 8},
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#444444"},
-                legend_title_text="Gênero",
-            )
-            fig_idades.update_xaxes(showgrid=False)
-            fig_idades.update_yaxes(title_text="Número de atletas", gridcolor="#e8dfd3")
-            st.plotly_chart(fig_idades, width="stretch")
-
-    with col_modalidades:
-        with st.container(border=True):
-            st.subheader("Modalidades mais representadas")
-            st.caption("Número de atletas nas 10 modalidades com maior participação")
-            contagem_modalidades = (
-                df_filtrado.explode("_disciplines_list")
-                .groupby("_disciplines_list")["code"]
-                .nunique()
-                .nlargest(10)
-                .sort_values()
-            )
-            fig_modalidades = px.bar(
-                x=contagem_modalidades.values,
-                y=contagem_modalidades.index,
-                orientation="h",
-                color_discrete_sequence=["#f97316"],
-                labels={"x": "Atletas", "y": "Modalidade"},
-            )
-            fig_modalidades.update_layout(
-                height=380,
-                margin={"l": 8, "r": 8, "t": 12, "b": 8},
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#444444"},
-            )
-            fig_modalidades.update_xaxes(showgrid=True, gridcolor="#e8dfd3")
-            fig_modalidades.update_yaxes(showgrid=False)
-            st.plotly_chart(fig_modalidades, width="stretch")
+    with st.container(border=True):
+        st.subheader("Modalidades mais representadas")
+        st.caption("Número de atletas nas 10 modalidades com maior participação")
+        contagem_modalidades = (
+            df_filtrado.explode("_disciplines_list")
+            .groupby("_disciplines_list")
+            .size()
+            .nlargest(10)
+            .sort_values()
+        )
+        fig_modalidades = px.bar(
+            x=contagem_modalidades.values,
+            y=contagem_modalidades.index,
+            orientation="h",
+            color_discrete_sequence=["#f97316"],
+            labels={"x": "Atletas", "y": "Modalidade"},
+        )
+        fig_modalidades.update_layout(
+            height=380,
+            margin={"l": 8, "r": 8, "t": 12, "b": 8},
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font={"color": "#444444"},
+        )
+        fig_modalidades.update_xaxes(showgrid=True, gridcolor="#e8dfd3")
+        fig_modalidades.update_yaxes(showgrid=False)
+        st.plotly_chart(fig_modalidades, width="stretch")
 
     st.caption(
-        f"{len(df_filtrado):,} de {len(df):,} atletas no período selecionado.".replace(",", ".")
+        f"{len(df_filtrado):,} de {len(df):,} atletas na faixa etária selecionada.".replace(",", ".")
     )
 
 with aba_dashboard2:
     st.subheader("Resumo dos atletas")
     st.caption(
-        "Indicadores gerais do conjunto de dados, com filtros opcionais por delegação e modalidade."
+        "Indicadores para gestores esportivos e comissões técnicas, com filtros opcionais por delegação e modalidade."
     )
 
     with st.container(border=True):
@@ -312,9 +315,7 @@ with aba_dashboard2:
     if df_kpis.empty:
         st.info("Nenhum atleta encontrado com os filtros selecionados.")
     else:
-        total_atletas = (
-            df_kpis["code"].nunique() if "code" in df_kpis.columns else len(df_kpis)
-        )
+        total_atletas = len(df_kpis)
         idades_validas = df_kpis["age"].dropna()
         generos_validos = df_kpis["gender"].dropna().str.casefold()
         total_generos_conhecidos = len(generos_validos)
@@ -395,8 +396,8 @@ with aba_dashboard2:
                 st.subheader("Delegações com mais atletas")
                 st.caption("As 10 maiores delegações no recorte atual")
                 contagem_paises = (
-                    df_kpis.groupby("country")["code"]
-                    .nunique()
+                    df_kpis.groupby("country")
+                    .size()
                     .nlargest(10)
                     .sort_values()
                 )
@@ -425,8 +426,8 @@ with aba_dashboard2:
             )
             contagem_modalidades = (
                 df_kpis.explode("_disciplines_list")
-                .groupby("_disciplines_list")["code"]
-                .nunique()
+                .groupby("_disciplines_list")
+                .size()
                 .nlargest(10)
                 .sort_values()
             )

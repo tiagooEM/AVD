@@ -3,10 +3,12 @@
 
 Repositório utilizado para aula prática relacionada a Streamlit na disciplina Análise e Visualização de Dados da Cesar School no período de 2026.2.
 
-Repositório-modelo das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. O deploy dos dashbords ocorrerá via Streamlit Community Cloud e serão os seguintes:
+Repositório das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. O app está publicado no Streamlit Community Cloud:
 
-- Dashboard 1 = correlação + distribuição das variáveis quantitativas
-- Dashboard 2 = KPIs
+- Dashboard 1 = laboratório com seletor de variáveis, slider de idade, mapa de
+  calor de correlação e um histograma por variável selecionada
+- Dashboard 2 = quatro KPIs e três visuais para gestores esportivos e comissões
+  técnicas, com filtros por delegação e modalidade
 # Link do deploy
 https://avdgit-dbnok6x7nz2idnadmvzhxd.streamlit.app/
 
@@ -69,7 +71,7 @@ streamlit run app.py
 ### Antes de dar `git push` com o dado tratado
 
 - **O dado é público ou pode ser compartilhado?** Se não for claramente público, use um **repositório privado** (o Community Cloud permite conectar repositórios privados ao autorizar o GitHub; confirme na hora do deploy). Nesse caso, dê acesso de leitura ao professor (como colaborador ou pela organização).
-- **Dado sensível** (nomes, CPF, e-mail, telefone, localização exata etc.): remova ou anonimize na EDA, antes de exportar para `data/clean/`. Isso vale mesmo em repositório privado.
+- **Dado pessoal identificável** (nomes, identificadores individuais, datas completas de nascimento, CPF, e-mail, telefone, localização exata etc.): remova ou anonimize na EDA, antes de exportar para `data/clean/`. Isso vale mesmo em repositório privado. O CSV desta entrega é publicado sem nomes, códigos individuais ou datas completas de nascimento; o app usa a idade em anos.
 - **Tamanho:** o GitHub rejeita arquivos acima de **100 MB**. Se o CSV tratado for grande, reduza colunas e linhas na EDA ou exporte em Parquet (`df.to_parquet(...)`, exige `pyarrow`).
 - **Lembre de commitar o arquivo:** confira com `git status` que `data/clean/dataset.csv` aparece como novo arquivo.
 

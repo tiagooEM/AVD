@@ -1,7 +1,8 @@
 import pandas as pd
 
+COLUNAS_IDENTIFICAVEIS = ["code", "name", "name_short", "name_tv", "birth_date"]
 
-# TODO: adicionar @st.cache_data (import streamlit as st) para evitar reler o CSV a cada interação
 def load_data(path="data/clean/dataset.csv"):
-    """Lê o dataset já tratado (exportado ao final do notebook de EDA)."""
-    return pd.read_csv(path)
+    """Remove identificadores pessoais antes de devolver os dados ao app."""
+    df = pd.read_csv(path)
+    return df.drop(columns=COLUNAS_IDENTIFICAVEIS, errors="ignore")
