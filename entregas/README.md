@@ -36,15 +36,19 @@ o que comunica ao público-alvo. Atualize também a declaração de uso de IA em
 
 Confira também os itens de entrega que não ficam nesta pasta:
 
-- [ ] Dashboard 1 e Dashboard 2 implementados no app, em abas, com widgets,
+- [x] Dashboard 1 e Dashboard 2 implementados no app, em abas, com widgets,
   métricas e gráficos funcionando.
 - [ ] App publicado no Streamlit Community Cloud e testado pelo link público.
 - [x] Link do app (`.streamlit.app`) incluído no [`README.md`](../README.md).
-- [ ] Repositório próprio no GitHub com as alterações desta revisão commitadas
+- [x] Repositório próprio no GitHub com as alterações desta revisão commitadas
   e enviadas.
 - [x] `app.py`, notebooks, `requirements.txt` e `data/clean/dataset.csv`
   incluídos no repositório. O CSV atual e as saídas dos notebooks não contêm
   nomes, códigos individuais ou datas completas de nascimento.
+
+Os widgets e filtros foram exercitados localmente, e a versão atualizada foi
+aberta pelo link público. Ainda falta repetir o checklist manual completo em
+uma janela anônima, inclusive testar cada widget no app publicado.
 
 O passo a passo e os critérios de teste do deploy estão no
 [`ROTEIRO.md`](../ROTEIRO.md).
