@@ -1,11 +1,14 @@
 # AVD-20262-pratica-streamlit
 
+
 Repositório utilizado para aula prática relacionada a Streamlit na disciplina Análise e Visualização de Dados da Cesar School no período de 2026.2.
 
 Repositório-modelo das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. O deploy dos dashbords ocorrerá via Streamlit Community Cloud e serão os seguintes:
 
 - Dashboard 1 = correlação + distribuição das variáveis quantitativas
 - Dashboard 2 = KPIs
+# Link do deploy
+https://avdgit-dbnok6x7nz2idnadmvzhxd.streamlit.app/
 
 ## Setup
 
