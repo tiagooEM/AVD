@@ -1,52 +1,85 @@
-# entregas/
+# Entregas
 
-Artefatos de entrega que não são sobre uso de IA (isso fica em [`prompts/`](../prompts)). Cada arquivo tem uma função específica na correção. Os rascunhos aceitam `.jpg` ou `.png`. Tudo desta pasta, incluindo as entregas do Dashboard 2 (rascunho + justificativa), deve estar pronto até a Aula 22; a Aula 23 é para finalizar a implementação, fazer o deploy e os ajustes finais.
+Esta pasta reúne os materiais de entrega das Aulas 21, 22 e 23. Os rascunhos
+devem ser feitos antes da implementação correspondente e salvos aqui em `.jpg`
+ou `.png`. Os arquivos de uso de IA ficam em [`prompts/`](../prompts/).
 
-| Arquivo                      | Quando    | O que é                                                                                      |
-|-------------------------------|-----------|-----------------------------------------------------------------------------------------------|
-| `rascunho-dashboard1.jpg`/`.png`     | Aula 21   | Foto do rascunho do layout do Dashboard 1, feito antes de codar                               |
-| `rascunho-dashboard2.jpg`/`.png`     | Aula 22   | Mesma ideia, para o Dashboard 2 — desenhado só depois de definir widgets, variáveis e métricas |
-| `justificativa-metricas.md`   | Aula 22   | Por que cada métrica/KPI do Dashboard 2 foi escolhida e o que ela comunica ao público-alvo     |
+## Entregas por aula
 
-## Checklist — Aula 21
+### Aula 21 — Dashboard 1
 
-- [ ] `rascunho-dashboard1.jpg`/`.png`
+- [ ] `rascunho-dashboard1.jpg` ou `rascunho-dashboard1.png` — rascunho da
+  página com sidebar, filtros, área de correlação e área de distribuição.
 
-## Checklist — Aula 22
+Além do material desta pasta, a entrega da aula inclui o `app.py` com pelo
+menos um seletor de variáveis e um slider de intervalo funcionando, o app
+executando localmente e a declaração de uso de IA atualizada em
+[`prompts/declaracao-uso-ia.md`](../prompts/declaracao-uso-ia.md).
 
-- [ ] `rascunho-dashboard2.jpg`/`.png`
-- [ ] `justificativa-metricas.md` preenchido (não só criado vazio)
+### Aula 22 — Dashboard 2
 
-## Checklist — entrega final (Aula 23)
+- [ ] `rascunho-dashboard2.jpg` ou `rascunho-dashboard2.png` — rascunho feito
+  depois de definir as variáveis, métricas e widgets do Dashboard 2.
+- [x] [`justificativa-metricas.md`](justificativa-metricas.md) — justificativa
+  preenchida para as métricas/KPIs.
 
-- [ ] Os dois rascunhos
-- [ ] `justificativa-metricas.md` completo
+A justificativa deve explicar, para cada métrica, a variável relacionada, o
+que mede, por que foi escolhida, a quem se destina, que decisão pode apoiar e
+o que comunica ao público-alvo. Atualize também a declaração de uso de IA em
+[`prompts/declaracao-uso-ia.md`](../prompts/declaracao-uso-ia.md).
 
-## Modelo de `justificativa-metricas.md`
+### Aula 23 — Finalização e publicação
 
-Cada métrica indica **a variável** a que se refere, **o que mede**, **por que foi escolhida** e **o que comunica** a um público que não precisa captar as nuances da variável.
+Confira também os itens de entrega que não ficam nesta pasta:
+
+- [ ] Dashboard 1 e Dashboard 2 implementados no app, em abas, com widgets,
+  métricas e gráficos funcionando.
+- [ ] App publicado no Streamlit Community Cloud e testado pelo link público.
+- [ ] Link do app (`.streamlit.app`) incluído no [`README.md`](../README.md).
+- [ ] Repositório próprio no GitHub com as alterações commitadas e enviadas.
+- [ ] `app.py`, notebooks, `requirements.txt` e `data/clean/dataset.csv`
+  incluídos no repositório; nenhum dado sensível ou segredo publicado.
+
+O passo a passo e os critérios de teste do deploy estão no
+[`ROTEIRO.md`](../ROTEIRO.md).
+
+## Modelo de justificativa das métricas
+
+Use uma seção para cada KPI. Preencha todos os campos e adapte-os à métrica e
+ao público do projeto:
 
 ```markdown
-# Justificativa das métricas — Dashboard 2
-
-## Métrica 1: <nome>
-- **Variável:** 
-- **O que mede:** 
-- **Por que foi escolhida:** 
-- **O que comunica ao público-alvo:** 
+## Métrica: <nome>
+- **Variável:** <coluna e significado>
+- **O que mede:** <definição do indicador, incluindo o recorte/denominador>
+- **Por que foi escolhida:** <motivo da escolha>
+- **Público-alvo:** <quem deve compreender ou usar o indicador>
+- **Qual decisão pode ser apoiada por essa métrica?** <decisão ou comparação>
+- **O que comunica ao público-alvo:** <interpretação em linguagem simples>
 ```
 
-### Exemplo preenchido
+### Exemplo
 
 ```markdown
 ## Métrica: Distribuição do colesterol em relação à mediana
 - **Variável:** `chol` (colesterol sérico, mg/dl)
-- **O que mede:** a proporção de pessoas da amostra abaixo, em torno e acima da mediana de `chol`,
-  junto de algumas estatísticas descritivas (média, mediana, mínimo, máximo, desvio padrão).
-  "Em torno" = dentro de ±10% da mediana (defina e explicite a faixa que você usar).
-- **Por que foi escolhida:** dá uma visão simplificada e direta da variável, sem exigir leitura
-  de histograma ou boxplot.
-- **O que comunica ao público-alvo:** como está distribuída a amostra de forma resumida
-  (ex.: "metade das pessoas está acima de X mg/dl"), para quem não consegue captar as
-  nuances da variável.
+- **O que mede:** proporção da amostra abaixo, em torno e acima da mediana de
+  `chol`, além de estatísticas descritivas. Defina e explicite a faixa usada
+  para "em torno" (por exemplo, ±10% da mediana).
+- **Por que foi escolhida:** resume a distribuição sem exigir a leitura de um
+  histograma ou boxplot.
+- **Público-alvo:** pessoas que precisam de uma visão resumida da amostra.
+- **Qual decisão pode ser apoiada por essa métrica?** comparar a distribuição
+  entre recortes da amostra.
+- **O que comunica ao público-alvo:** como os valores se distribuem em relação
+  à mediana, em termos compreensíveis para quem não conhece a variável.
 ```
+
+## Arquivos de apoio existentes
+
+- `Painel de Análise Exploratória.png` — imagem de referência do painel; não
+  substitui os rascunhos dos dois dashboards.
+- `exemplo_professora.jpeg` — exemplo fornecido pela professora.
+
+Os rascunhos são entregáveis próprios: não use as imagens de referência como
+substitutas e não os coloque no `.gitignore`.
